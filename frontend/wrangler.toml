@@ -1,0 +1,11 @@
+name = "medium-frontend"
+compatibility_date = "2025-01-01"
+
+[site]
+bucket = "dist"
+
+[vars]
+# Wired to Koyeb backend
+BACKEND_URL = "https://conceptual-wileen-medium-test-5b91bdf0.koyeb.app"
+
+
