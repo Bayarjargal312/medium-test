@@ -3,18 +3,18 @@
 FROM gradle:8.7-jdk17-alpine AS build
 WORKDIR /app
 
-# Copy Gradle wrapper and project files
-COPY gradlew gradlew
-COPY gradle gradle
+# Copy only what's needed for Gradle build (no wrapper required)
 COPY build.gradle settings.gradle ./
 COPY src src
 
-RUN chmod +x gradlew || true
-RUN ./gradlew bootJar --no-daemon
+RUN gradle --version && gradle bootJar --no-daemon
 
 
 FROM eclipse-temurin:17-jre-alpine AS runtime
 WORKDIR /app
+
+# Ensure CA certificates are present for TLS (required for MongoDB Atlas)
+RUN apk add --no-cache ca-certificates && update-ca-certificates
 
 # Copy the built jar
 COPY --from=build /app/build/libs/*.jar /app/app.jar
