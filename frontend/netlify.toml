@@ -1,0 +1,13 @@
+[build]
+  base = "frontend"
+  publish = "dist"
+  command = "npm ci && npm run build"
+
+[[redirects]]
+  # Replace BACKEND_HOST with your real backend hostname (e.g., koyeb.app URL)
+  from = "/api/*"
+  to = "https://BACKEND_HOST/api/:splat"
+  status = 200
+  force = true
+
+
