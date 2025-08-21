@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Gradle
+.gradle/
+**/.gradle/
+build/
+node_modules/
+dist/
+.next/
