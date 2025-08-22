@@ -4,21 +4,43 @@ import { Link, useNavigate } from 'react-router-dom'
 export default function Admin() {
   const [pending, setPending] = useState([])
   const [selectedPost, setSelectedPost] = useState(null)
+  const [listLoading, setListLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState(null) // { id, action } | null
   const navigate = useNavigate()
   const role = typeof window !== 'undefined' ? (localStorage.getItem('role') || 'USER') : 'USER'
+
+  async function loadPending() {
+    setListLoading(true)
+    try {
+      const r = await fetch('/api/posts/pending')
+      const data = await r.json()
+      setPending(data)
+    } catch (e) {
+      // ignore
+    } finally {
+      setListLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (role !== 'ADMIN') {
       navigate('/')
       return
     }
-    fetch('/api/posts/pending').then(r=>r.json()).then(setPending).catch(()=>{})
+    loadPending()
   }, [])
 
   async function act(id, action) {
-    await fetch(`/api/posts/${id}/${action}`, { method: 'POST' })
-    setPending(prev => prev.filter(p => p.id !== id))
-    setSelectedPost(null) // Close the selected post view
+    setActionLoading({ id, action })
+    try {
+      await fetch(`/api/posts/${id}/${action}`, { method: 'POST' })
+      setSelectedPost(null) // Close the selected post view
+      await loadPending()
+    } catch (e) {
+      // no-op; optionally surface error UI
+    } finally {
+      setActionLoading(null)
+    }
   }
 
   function signOut(e) {
@@ -56,9 +78,15 @@ export default function Admin() {
         <div className="card" style={{ maxWidth: 980, margin: '0 auto' }}>
           <div className="card-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span>Pending Posts</span>
-            <span className="muted">{pending.length} {pending.length === 1 ? 'item' : 'items'}</span>
+            <span className="muted">
+              {pending.length} {pending.length === 1 ? 'item' : 'items'}
+              {listLoading ? ' · Refreshing…' : ''}
+            </span>
           </div>
           <ul className="list">
+            {listLoading && (
+              <li className="muted" style={{ padding: 8 }}>Loading…</li>
+            )}
             {pending.map(p => (
               <li key={p.id} className="list-item" style={{ alignItems: 'flex-start' }}>
                 <div 
@@ -130,12 +158,24 @@ export default function Admin() {
                   )}
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <button className="btn btn-dark" onClick={() => act(p.id, 'approve')}>Approve</button>
-                  <button className="btn" onClick={() => act(p.id, 'decline')}>Decline</button>
+                  <button 
+                    className="btn btn-dark" 
+                    onClick={() => act(p.id, 'approve')}
+                    disabled={actionLoading?.id === p.id}
+                  >
+                    {actionLoading?.id === p.id && actionLoading?.action === 'approve' ? 'Approving…' : 'Approve'}
+                  </button>
+                  <button 
+                    className="btn" 
+                    onClick={() => act(p.id, 'decline')}
+                    disabled={actionLoading?.id === p.id}
+                  >
+                    {actionLoading?.id === p.id && actionLoading?.action === 'decline' ? 'Declining…' : 'Decline'}
+                  </button>
                 </div>
               </li>
             ))}
-            {pending.length === 0 && (
+            {!listLoading && pending.length === 0 && (
               <li className="muted" style={{ padding: 8 }}>No pending posts</li>
             )}
           </ul>

@@ -1,11 +1,12 @@
 name = "medium-frontend"
 compatibility_date = "2025-01-01"
 
-[site]
-bucket = "dist"
+# Required by Cloudflare Pages when using wrangler.toml
+pages_build_output_dir = "dist"
+
+[functions]
+directory = "functions"
 
 [vars]
-# Wired to Koyeb backend
 BACKEND_URL = "https://conceptual-wileen-medium-test-5b91bdf0.koyeb.app"
-
 
