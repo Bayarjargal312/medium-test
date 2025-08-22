@@ -6,9 +6,11 @@ import { useEffect, useState } from 'react'
 export default function Home() {
 	// Try to fetch latest posts from backend, fallback to local posts
 	const [remotePosts, setRemotePosts] = useState([])
+	const [loadingPosts, setLoadingPosts] = useState(true)
 	useEffect(() => {
-		fetch('/api/posts').then(r=>r.json()).then(setRemotePosts).catch(()=>{})
-	}, [])
+		setLoadingPosts(true)
+		fetch('/api/posts').then(r=>r.json()).then(setRemotePosts).catch(()=>{}).finally(()=>setLoadingPosts(false))
+		}, [])
 	const posts = useMemo(() => {
 		return (remotePosts && remotePosts.length ? remotePosts : getPosts())
 	}, [remotePosts])
@@ -185,6 +187,7 @@ export default function Home() {
 
 	return (
 		<>
+			{loadingPosts && (<div className="spinner-overlay"><div className="spinner" /></div>)}
 			<div className="nav">
 				<div className={`nav-inner ${!signedIn ? 'nav-inner-no-menu' : ''}`}>
 					{signedIn && (

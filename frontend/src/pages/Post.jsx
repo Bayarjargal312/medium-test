@@ -7,6 +7,7 @@ export default function Post() {
   const navigate = useNavigate()
   const [remotePost, setRemotePost] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [commentsLoading, setCommentsLoading] = useState(true)
   const fallbackPost = getPostBySlug(slug)
   const [sidebarVisible, setSidebarVisible] = useState(true)
   const signedIn = typeof window !== 'undefined' && localStorage.getItem('signed_in') === '1'
@@ -16,11 +17,13 @@ export default function Post() {
   const [replyOpenId, setReplyOpenId] = useState(null)
 
   async function loadComments() {
+    setCommentsLoading(true)
     try {
       const res = await fetch(`/api/comments/${slug}`)
       const data = await res.json()
       setComments(Array.isArray(data) ? data : [])
     } catch (e) { /* ignore for now */ }
+    finally { setCommentsLoading(false) }
   }
 
   useEffect(() => { loadComments() }, [])
@@ -105,7 +108,10 @@ export default function Post() {
 
   if (loading && !post) {
     return (
-      <div className="container"><p>Loading...</p></div>
+      <>
+        <div className="spinner-overlay"><div className="spinner" /></div>
+        <div className="container" />
+      </>
     )
   }
 
@@ -142,6 +148,9 @@ export default function Post() {
       </div>
 
       <div className={`dashboard ${sidebarVisible ? '' : 'sidebar-collapsed'}`}>
+        {(loading || commentsLoading) && (
+          <div className="spinner-overlay"><div className="spinner" /></div>
+        )}
         <aside className="sidebar-left">
           <ul className="side-list">
             <li>

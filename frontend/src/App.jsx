@@ -50,6 +50,9 @@ function App() {
 
   return (
     <div className="container">
+      {loading && (
+        <div className="spinner-overlay"><div className="spinner" /></div>
+      )}
       <h1>User Management</h1>
 
       <form onSubmit={addUser} className="form">
@@ -66,7 +69,7 @@ function App() {
         <button type="submit">Add</button>
       </form>
 
-      {loading && <p>Loading...</p>}
+      {loading && <p className="muted">Loading…</p>}
       {error && <p className="error">{error}</p>}
 
       <ul className="list">
