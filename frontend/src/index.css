@@ -576,3 +576,8 @@ input, textarea, select {
 button {
   font-size: 20px !important;
 }
+
+/* Full-screen loading spinner */
+.spinner-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(2px); }
+.spinner { width: 56px; height: 56px; border: 4px solid #e5e7eb; border-top-color: #111827; border-radius: 50%; animation: spinner-rotate 1s linear infinite; }
+@keyframes spinner-rotate { to { transform: rotate(360deg); } }

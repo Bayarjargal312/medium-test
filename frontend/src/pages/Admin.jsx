@@ -60,6 +60,11 @@ export default function Admin() {
 
   return (
     <div>
+      {(listLoading || actionLoading) && (
+        <div className="spinner-overlay">
+          <div className="spinner" />
+        </div>
+      )}
       <div className="nav">
         <div className="nav-inner">
           <button className="menu-btn" aria-label="Toggle menu" style={{ visibility: 'hidden' }}>
